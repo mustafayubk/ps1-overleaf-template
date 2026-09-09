@@ -1,4 +1,4 @@
-# COMSCI/ECON 206 PS1 Overleaf template
+# COMSCI/ECON 206 PS1 Overleaf template - Mustafa
 
 Individual research proposal · Computational Microeconomics · Autumn 2026 Session 1 · Instructor Prof. Luyao Zhang
 
