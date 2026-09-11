@@ -1,28 +1,87 @@
 \clearpage\nobalance
 \section*{Author Notes}
 \subsection*{Acknowledgements}
-I thank Prof. Luyao Zhang, Program Chair, and Prof. Ken Rogerson, Program Discussant, of the \emph{2056 Nobel and Turing Laureate Program Launch Workshop}, held at Duke Kunshan University on September 7, 2026. I also thank [full name of teammate 1] and [full name of teammate 2], my teammates in [session number and full session title], and the rest of the COMSCI/ECON 206 Autumn 2026 Session 1 class for their questions and discussion. [Identify a specific contribution you actually used.] I am responsible for the proposal and remaining errors.
+I thank Prof. Luyao Zhang, Program Chair, and Prof. Ken Rogerson, Program Discussant, of the \emph{2056 Nobel and Turing Laureate Program Launch Workshop}, held at Duke Kunshan University on September 7, 2026. I also thank Tian Liang and Aaron Wang, my teammates in Session D: Strategic AI, Trust, Collusion, and Adaptation in Repeated Interactions, and the rest of the COMSCI/ECON 206 Autumn 2026 Session 1 class for their questions and discussion during workshop sessions. I am responsible for the proposal and any remaining errors.
+
 \subsection*{Individual contribution}
-[State what you personally designed, implemented, wrote, checked, and adapted. Identify shared code or other contributions accurately. Program roles and feedback do not automatically imply coauthorship.]
+I designed the three connected research questions, formalized the economic model and its Nash equilibrium benchmark, and wrote all five main sections, the Author Notes, and the appendices myself. I built and deployed the observability-based public goods game as a Hugging Face Static Space, personally played through all three test cases reported in Appendix~A (typical, boundary, and invalid-input), and hand-verified every payoff figure against the game's live output before including it in this proposal. I used Claude (Sonnet 5) for drafting assistance and debugging support after my own independent reasoning, as disclosed in Appendix~A.1; I made the final decisions on which foundations, papers, and framing to use.
 
 \bibliographystyle{ACM-Reference-Format}\bibliography{references}
 \appendix
 \section{Technical details and reproducibility}
-[Supply derivations, inputs, package versions, seed where relevant, actual outputs and limitations. Identify repository commit, notebook cells and demo version. Include the fresh-run record.]
-\subsection{AI-use disclosure}
-AI-Assisted drafting and debugging are permitted after initial independent reasoning. Initial reasoning and handwritten reflection are Human-Only. Record tool/model, date, purpose, significant prompts, accepted or rejected suggestions, human changes and verification. If none, state ``No generative AI was used.'' The human author is responsible for every claim, citation and computation.
+\subsection*{A.1 Links and versions}
+Hugging Face Space: \url{https://huggingface.co/spaces/dku-comsci-econ206-2026/mustafa-observability-game}. Commit \texttt{08f35df} (``Add SDG 4 educational framing for PS1''), verified, \texttt{index.html} 11.7~kB. Author: Mustafa Ayub Khan. Platform: static HTML/CSS/JS, no backend. Date tested: September 10--11, 2026.
+
+GitHub repository: \url{https://github.com/mustafayubk/ps1-overleaf-template}. Companion notebook at \url{companion/notebooks/06_ps1_strategic_reasoning_demo.ipynb}, commit \texttt{ea48874} (``Adapt notebook to PS1 public goods game: payoff engine, verification, multi-schedule sweep, adaptive strategy''). Run fresh, top to bottom, via Runtime~$\to$~Restart session and run all, immediately before this commit.
+
+\subsection*{A.2 Mechanism}
+Players: one human player and four fixed-behavior simulated peers, matching $N=5$ in Section~2. Actions: each round, the player allocates 10 tokens between a Personal Fund and a Group Fund; contribution $c_{i,t}\in\{0,\dots,10\}$ (integer). Information: Rounds 1--3 (Low Observability) show only aggregate peer outcomes; Rounds 4--6 (High Observability) show each peer's individual prior contribution. Payoffs: $\pi_{i,t}=4(10-c_{i,t})+2\sum_{j}c_{j,t}$, matching $a=4$, $b=2$ from Section~2. Peer schedule (fixed, not affected by the player's choice): peer sums 10, 10, 10 (Low); 20, 22, 24 (High). Validation: $c_{i,t}$ must be an integer in $[0,10]$; any other input is rejected before the round advances, with no clamping or silent default.
+
+\subsection*{A.3 Test cases}
+\textbf{Boundary} ($c=0$ every round): cumulative payoff \$432.00, matching the Nash prediction $c_{i,t}^{*}=0$ from Section~2. \textbf{Typical} ($c=5$ every round): cumulative payoff \$372.00. \textbf{Invalid input}: a non-numeric entry is rejected with an on-screen validation message; the round does not advance. All three were verified directly against the deployed Space's live output before being reported in Section~3.
+
+\textbf{Multi-schedule sweep} (companion notebook, commit \texttt{ea48874}): across 500 randomly drawn peer schedules (fixed seed 206), the boundary strategy strictly dominates the typical strategy in 100\% of trials (mean payoff \$435.73 vs.\ \$375.73), confirming the Nash prediction generalizes beyond the single schedule used in the deployed Space.
+
+\textbf{Adaptive-strategy sweep} (companion notebook): with contribution in rounds 4--6 responding to the previous round's visible peer average at sensitivity levels 0, 0.25, 0.5, and 1.0, visible contribution rises from 0 to 6 tokens as sensitivity increases, purely as a function of the peer average. This demonstrates only that the mechanism executes as designed; it is not evidence that a real player behaves this way (see Section~4's limits paragraph).
+
+\subsection*{A.4 Responsible boundary}
+The Hugging Face artifact is a static Space using client-side HTML, CSS, and JavaScript only, with no backend, database, API call, or paid service; all calculations run locally in the browser, and no personal data is collected, stored, or transmitted. All controls are native HTML inputs and buttons; round outcomes are announced via \texttt{aria-live}. What remains unverified: the fixed peer-contribution schedule is illustrative, not derived from real behavioral data, and whether visibility reliably raises contribution across many players and sessions (H1--H3) has not been tested --- only demonstrated in this single-player mechanism and its synthetic multi-schedule sweep.
+
+\subsection*{A.5 AI-use disclosure}
+I used Claude (Sonnet 5) on September 10--11, 2026 for adapting the companion Colab notebook and Hugging Face Space to this proposal's research question, and for drafting assistance across Sections 1--5 and the appendices. My prompts specified the research direction (sovereign disclosure, observability, the public goods game inherited from Intellectual Statement II); Claude proposed section drafts, code implementations, and citation candidates, which I approved, rejected, or asked to be revised at each step.
+
+Outputs adopted: the payoff-engine code, the multi-schedule sweep, and the adaptive-strategy extension in the companion notebook; the SDG~4 educational framing paragraph added to the Hugging Face Space; drafts of Sections~1--5 and the appendices, built from my own research direction and prior Intellectual Statement~II work.
+
+Outputs rejected or revised: an initial single-foundation (Ostrom-only) framing for Section~5 was revised to include Nordhaus as a second foundation, following Prof.\ Zhang's September~7 feedback (Appendix~B).
+
+My own verification: I personally ran the companion notebook fresh (Runtime~$\to$~Restart session and run all) and confirmed its printed outputs --- the boundary, typical, multi-schedule sweep, and adaptive-strategy results --- match what is reported in Sections~3 and A.3 above. I confirmed the Hugging Face commit hash and file size directly from the Files tab. I am responsible for the originality, accuracy, and integrity of this work.
 
 \section{Cumulative Intellectual Development}
-This proposal develops my Intellectual Statement II through the \emph{2056 Nobel and Turing Laureate Program Launch Workshop}, held on September 7, 2026 at Duke Kunshan University, IB 2050. Program Chair: Prof. Luyao Zhang. Program Discussant: Prof. Ken Rogerson. My session: [number and full title]. My role: [assigned role]. My teammates: [full name 1] and [full name 2]. I acknowledge their contributions and the rest of the class's questions and discussion.
+This proposal develops my Intellectual Statement II through the \emph{2056 Nobel and Turing Laureate Program Launch Workshop}, held on September 7, 2026 at Duke Kunshan University, IB 2050. Program Chair: Prof. Luyao Zhang. Program Discussant: Prof. Ken Rogerson. My session: Session D: Strategic AI, Trust, Collusion, and Adaptation in Repeated Interactions. My role: Speaker 2 (Economist). My teammates: Tian Liang and Aaron Wang. I acknowledge their contributions and the rest of the class's questions and discussion.
 
-[Trace an earlier claim, a specific dated comment or piece of evidence, and the resulting revision with its intellectual consequence. Do not write only a chronological diary. Retain and revise the 2056 contribution statement.]
+I previously claimed, in Intellectual Statement II, that a single fixed-schedule observability game was sufficient to test whether visibility changes voluntary disclosure. On September 7, 2026, Prof. Luyao Zhang's feedback raised two points: that my underlying concern --- countries' ability to question the systems assessing them --- needed to remain the project's central human purpose, and that when comparing neighboring countries' disclosures, I needed to distinguish genuine learning from peers from a shared external pressure affecting everyone alike. This second point exposed a confound I had not previously separated: a rise in visible disclosure could reflect a behavioral response to observability, or simply a common shock unrelated to it. I changed Section~4 to state explicitly that the deployed game's fixed, non-adaptive peers cannot show a behavioral response at all, and added the discriminating $2\times2$ design specifically to separate an observability effect from a confound of this kind before extending any claim to real countries.
+
+On September 9, 2026, I ran the computational check described in Section~3 and Appendix~A, hand-verifying the boundary and typical strategy outputs against the deployed game's live results. This check supports the bounded conclusion that the payoff arithmetic itself executes correctly, but does not yet test H1--H3, since both recorded runs hold the player's own contribution fixed by construction. Next I will test the adaptive-strategy modification described in Section~3, the smallest change that could actually generate evidence on whether visibility shifts contribution.
+
+\textbf{Retained earlier statement (Intellectual Statement II).} ``By 2056, I aim to contribute a comparative sovereign ESG Budget Index by integrating a behavioral advance (how observability changes voluntary contribution in public-goods-style dilemmas), an economic advance (how disclosure quality causally affects a country's borrowing cost), and a computational advance (a testable simulation of whether increasing peer visibility raises voluntary disclosure investment), so that finance ministries and rating agencies in lower-income countries can see, in a reproducible way, how their own transparency choices affect their financial standing, rather than experiencing disclosure as a cost imposed on them from outside.''
+
+\textbf{Reason for change.} Prof. Zhang's September 7 feedback suggested extending the climate--economy connection toward disclosure incentives and developing countries' participation, proposing a Nordhaus foundation alongside source-grounded, multilingual AI for examining public budgets. This shifted the 2056 statement in Section~5 from a static, single-foundation index toward a deployed, auditable AI tool built on two laureate foundations (Ostrom and Nordhaus), with an explicit institutional-adoption milestone rather than only a reproducibility milestone.
 
 Appendix~\ref{app:abstract} contains the structured abstract in the cumulative reflection format. Update its eight rows and preserve the prior version. The Expected 2056 Nobel Prize and Turing Award contribution statement in Section 5 must follow from the foundation, current-era boundary and interdisciplinary milestones.
 
 \section{Field and open-source inspiration}
-The \emph{Joint Interdisciplinary Field Trip---Technology, Computation, Culture \& Society in Action} took place on September 4, 2026. Record your actual observations at \textbf{Tencent Shanghai Office} and \textbf{Shanghai Science and Technology Museum}. State attendance accurately.
+The \emph{Joint Interdisciplinary Field Trip---Technology, Computation, Culture \& Society in Action} took place on September 4, 2026. I attended this field trip on September 4, 2026 and visited both sites.
 
-[Retain one industry photograph and one public-sector photograph from the earlier assignment. Each caption gives exact site, September 4, 2026 visit date, photographer/source, activity or exhibit, and relevance. Distinguish observation from interpretation; connect each setting to an open-source inspiration, subsequent research, and proposed practical value. If you lacked first-hand access, identify an attributed alternative instead of claiming attendance.]
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\columnwidth]{figures/IMG_6881.jpeg}
+\caption{Tencent's ``Carbon Neutrality'' exhibit display, Shanghai, September 4, 2026. Photograph by the author.}
+\Description{A blue-lit display panel titled Carbon Neutrality showing a rising emissions curve split into three bands: reductions in operations, reductions in the supply chain, and offset by carbon sink.}
+\label{fig:tencent}
+\end{figure}
+
+\textbf{Observation.} The display shows a chart plotting estimated carbon emissions (million tonnes CO2e) against a rising baseline, broken into three labeled categories: operations, supply chain, and carbon-sink offsets.
+
+\textbf{Inference.} Tencent treats emissions disclosure as something to break into specific, checkable categories rather than one vague total --- the same granularity this proposal's disclosure-quality question (Section~2) needs to score countries comparably.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\columnwidth]{figures/IMG_6947.jpeg}
+\caption{Museum display quoting President Xi Jinping's 2020 UN General Assembly climate pledge, Shanghai Science and Technology Museum, September 4, 2026. Photograph by the author.}
+\Description{A wall panel quoting a head-of-state statement that China aims to peak carbon emissions before 2030 and reach carbon neutrality before 2060, next to a staged diagram of emissions, peak, and reduction.}
+\label{fig:museum}
+\end{figure}
+
+\textbf{Observation.} The display quotes a head-of-state statement giving two specific, dated national targets (peak before 2030, neutrality before 2060), alongside a staged pathway diagram.
+
+\textbf{Inference.} This shows a national government making a dated, in-principle-checkable climate commitment in public --- the sovereign-level version of the disclosure behavior this proposal's observability game is designed to test.
+
+\subsection*{Two open-source tools}
+\textbf{Tool 1 --- Industry: physrisk.} Official page: physrisk.readthedocs.io. Repository: github.com/os-climate/physrisk. License: Apache License 2.0. Version/date: v1.9.10 (June 9, 2026); accessed September 5, 2026. \emph{Capability:} combines climate hazard data with asset vulnerability models to calculate physical climate risk to individual assets or operations. \emph{Limitation:} scores physical risk to specific assets, not the quality or completeness of a country's climate disclosure. \emph{Design consequence:} a working example of turning raw hazard data into a standardized, auditable score --- the same computational pattern the public goods game in Section~3 needs for scoring contribution.
+
+\textbf{Tool 2 --- Public sector: OpenClimate.} Official page: openclimate.network. Repository: github.com/Open-Earth-Foundation/OpenClimate. License: Apache License 2.0. Version/date: develop branch; accessed September 5, 2026. \emph{Capability:} open database and API tracking emissions, targets, and climate plans for countries, regions, cities, and companies, with a public data-explorer interface. \emph{Limitation:} displays and aggregates self-reported targets rather than independently verifying their credibility or completeness --- the same disclosure-theater risk raised in Section~4. \emph{Design consequence:} its nested country--region--city--company structure is a ready-made way to organize the kind of comparative disclosure data this proposal's longer-term validation (Table~1) would need.
+
+\textbf{Private- and public-sector value.} The Tencent photograph shows private-sector value: a company voluntarily breaking its own emissions into operations, supply chain, and offsets shows checkable climate disclosure is already normal industry practice. The museum photograph shows public-sector value: China's own head-of-state pledge shows sovereign climate commitments are made publicly and are, in principle, trackable and comparable --- the exact assumption this proposal's Q1 depends on.
 
 \section{Review response and revision record}
 [Retain v1, both peer reviews, author rebuttal, reviewer follow-up and v2. Use the three review themes: strengths to retain, constructive concerns to address, and questions to clarify. Explain your decisions, changed locations and actual verification results. Justify any retained approach or deferred work.]
@@ -39,14 +98,14 @@ Update this structured abstract with each cumulative reflection. Replace each pr
 \toprule
 \textbf{Proposal element} & \textbf{Current statement / change} \\
 \midrule
-Background & State the strategic setting, established knowledge and unresolved issue. Cite the key foundation. \\
-Motivation and application & Explain why the issue matters now, the application scenario, affected people and the need the project addresses. \\
-Three connected questions & State one economics question, one computer-science question and one behavioral-science question. End with the integrated question that requires all three. \\
-Method and model assumptions & Specify players, actions or strategies, incentives, timing and information; then the model, baseline, computation and evidence needed. \\
-Results or expected results & State what was actually obtained and label its evidence type. Separately state expected results, the test and what finding would challenge the claim. \\
-Intellectual merits & Explain what is learned beyond the cited foundation and why integrating the three disciplines changes the answer. \\
-Practical impacts & Identify private- and public-sector value. Explain the open-access learning tool's intended contribution to SDG 4 and how its usefulness could be assessed. \\
-Feedback received and revision made & Name the dated feedback source, earlier claim, actual revision and intellectual consequence. Preserve prior versions; state accurately if feedback is pending. \\
+Background&Sovereign climate disclosure is a public good sustainable without top-down enforcement (Ostrom~\cite{ostrom1990}); ESG ratings are already priced into sovereign borrowing cost (Crifo et al.~\cite{crifo2017}), but whether disclosure \emph{quality} itself is priced, versus rating existence alone, is unresolved.\\
+Motivation and application&Lower-income countries often lack resources to produce disclosure as polished as high-capacity states, even when practices are sound; finance ministries, rating agencies, and investors currently treat disclosure as an externally imposed cost rather than a strategic, observable choice.\\
+Three connected questions&Q1 (Economics): does disclosure quality causally lower borrowing cost? Q2 (Computation): does peer observability alone raise voluntary contribution in a public goods game? Q3 (Behavior): does visibility raise genuine transparency or teach disclosure theater? Integrated question: when does peer observability cause genuine, rather than performed, transparency among strategic actors?\\
+Method and model assumptions&Five-country linear public goods game with Nash equilibrium benchmark ($c_{i,t}^{*}=0$); implemented as a deterministic six-round decision engine with fixed low/high-observability peer schedules; discriminating $2\times2$ design (peer visibility $\times$ player visibility) proposed to separate image-concern from conditional cooperation.\\
+Results or expected results&\emph{Obtained:} boundary strategy (\$432) outperforms typical strategy (\$372), consistent with the Nash prediction; payoff arithmetic verified exactly against hand calculations. \emph{Also obtained:} the adaptive-strategy sweep confirms the mechanism executes as designed. \emph{Expected, not yet obtained:} the $2\times2$ design has not been implemented, so H1--H3 remain untested.\\
+Intellectual merits&Integrating the three disciplines shows the policy value of observability depends entirely on which behavioral mechanism drives it --- a distinction invisible to the economic pricing relationship or the computational game alone.\\
+Practical impacts&Private-sector precedent (Tencent's voluntary granular disclosure) and public-sector precedent (China's dated national pledge, trackable via tools like OpenClimate) motivate a low-cost visibility mechanism as a policy lever; connects to SDG 4 through the Hugging Face demo's educational framing.\\
+Feedback received and revision made&Prof. Luyao Zhang, September 7, 2026: flagged the need to preserve the project's human purpose (countries questioning the systems assessing them) and to distinguish peer learning from shared external pressure; proposed a Nordhaus foundation. Revision: added Nordhaus alongside Ostrom in Section~5, and sharpened Section~4's discriminating design to rule out confounds. September 9, 2026: hand-verified computational check (Appendix~A) confirmed payoff arithmetic; next test is the adaptive-strategy modification.\\
 \bottomrule
 \end{tabularx}
 \end{table}
