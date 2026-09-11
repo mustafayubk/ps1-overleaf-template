@@ -1,50 +1,57 @@
 \section{Three connected research questions}
-Start from Intellectual Statement II. State the background, motivation, application, affected stakeholders, and strategic tension. Explain your proposal's relationship to a Nobel-recognized foundation and current research.
+Intellectual Statement II documented two Shanghai field observations: Tencent voluntarily disaggregates its emissions disclosure into checkable categories, and China's head-of-state climate pledge shows sovereign commitments are made publicly and are, in principle, trackable. Disclosure is thus a strategic choice, not a fixed attribute --- yet lower-income countries often lack the resources to disclose as polished as high-capacity states, even when practices are sound. Finance ministries, rating agencies, and investors currently treat disclosure as an externally imposed cost rather than a strategic investment shaped by peer behavior.
 
-\textbf{Q1---Economics:} [Which incentive, welfare, allocation, or institutional question needs an answer?]\par
-\textbf{Q2---Computation:} [Which model, algorithm, or evaluation makes the answer checkable?]\par
-\textbf{Q3---Behavior:} [Which belief, preference, reasoning limit, or learning mechanism could alter the prediction?]
+This proposal's foundation is Ostrom's finding that groups sustain cooperation through mutual monitoring without a top-down enforcer~\cite{ostrom1990}, treating sovereign climate disclosure as a similarly structured public good untested by current sovereign ESG research.
 
-Explain why the answers depend on one another. Cite relevant economics, computer-science, and behavioral-science papers. Refer to Figure~\ref{fig:teaser} and explain how its mechanism connects your questions.
+\textbf{Q1---Economics:} Does higher-quality disclosure causally lower borrowing cost, or does the ESG-rating/cost relationship reward rating existence alone~\cite{crifo2017}?
+
+\textbf{Q2---Computation:} Can an observability-based public goods game show that visibility of peers' contributions alone---with no payoff change---raises voluntary contribution?
+
+\textbf{Q3---Behavior:} Does peer visibility raise genuine transparency, or merely teach actors to perform disclosure (``disclosure theater'')?
+
+These are mutually dependent, yielding one question: \emph{when does peer observability cause genuine, rather than merely performed, transparency among self-interested strategic actors?} Figure~\ref{fig:teaser} traces this dependency across the three disciplines.
 
 \section{Answer to Q1: incentives and intellectual lineage}
-State a provisional answer or falsifiable hypothesis. Define players, actions versus strategies, payoffs, timing, and information. Name the solution concept and cite its defining paper, such as Nash~\cite{nash1950} or Bayesian equilibrium~\cite{harsanyi1968}. State what the benchmark establishes and what it leaves unresolved. Distinguish hypothetical, observed, estimated, and inherited quantities.
+\textbf{Provisional answer.} The marginal effect of disclosure \emph{quality} on borrowing cost is negative and distinct from merely holding a rating: countries disclosing more granularly should pay a lower spread than same-rated peers, beyond what Crifo et al.~\cite{crifo2017} attribute to rating level alone---falsifiable if no marginal effect survives controlling for rating.
+
+\textbf{Model.} Players are $N=\{1,\dots,5\}$ countries. Each period $t$, country $i$ chooses $c_{i,t}\in[0,e]$, the share of endowment $e$ invested in disclosure, retaining $e-c_{i,t}$ for domestic priorities. Stage payoff is linear: $\pi_{i,t}=a(e-c_{i,t})+b\sum_{j\in N}c_{j,t}$, with $a>b>a/5$, so private retention dominates individually though full contribution maximizes total payoff. Under low observability a country sees only $\sum_j c_{j,t-1}$; under high observability it sees each peer's individual prior contribution.
+
+\textbf{Solution concept.} The benchmark is Nash equilibrium~\cite{nash1950}. Because $a>b$, contributing nothing dominates regardless of others' actions or observability, so $c_{i,t}^{*}=0$ is the unique prediction---independent of the observability regime, since it changes only information, not payoffs. This leaves open why real actors deviate when observed (Q3).
+
+\textbf{Quantities.} $c_{i,t}^{*}=0$ is \emph{hypothetical}. The deployed game's boundary output---\$432 for zero contribution versus \$372 for constant partial contribution---is \emph{observed}. Crifo et al.'s~\cite{crifo2017} coefficient is \emph{estimated} from external data. The linear structure is \emph{inherited} from standard public-goods theory.
 
 \section{Answer to Q2: method and evaluation}
-Explain the computational part of Figure~\ref{fig:teaser}: inputs, algorithm, baseline, metric, and a meaningful mathematical or computational check. Specify your smallest feasible experiment and one modification to the baseline. State the actual outputs obtained; label every untested outcome as expected or planned. Your Colab notebook and interactive game must explain the same research question and identify any differences in model or scope.
+\textbf{Inputs and algorithm.} Section~2's model is a deterministic six-round problem: fixed peer schedule (sums 10,10,10 low observability; 20,22,24 high), player contribution $c_t\in\{0,\dots,10\}$, $a=4$, $b=2$. Each round the engine computes pool $G_t=c_t+\text{(peer sum)}_t$ and payoff $\pi_t=4(10-c_t)+2G_t$, separating the observability manipulation from the payoff rule.
 
-\clearpage\balance
+\textbf{Baseline and metric.} The baseline is the deployed Hugging Face game: one human player, four non-adaptive peers, low observability rounds 1--3, high rounds 4--6. Primary metric: average own contribution $\bar c$ by phase.
+
+\textbf{Outputs and verification.} For $c_t=5$ every round, hand-calculated predictions matched the live game exactly across all six rounds, confirming no arithmetic drift. \emph{Typical} ($c_t=5$ throughout): cumulative payoff \$372, contribution unchanged at 5.00 in both phases---payoff rose only because peers' visible contributions rose. \emph{Boundary} ($c_t=0$ throughout): cumulative payoff \$432, the highest, since contributing nothing dominates regardless of peer behavior---consistent with Section~2's Nash prediction. An invalid non-numeric input was correctly rejected.
+
+\textbf{Smallest feasible experiment.} Comparing these fixed strategies isolates the observability manipulation from behavior: both hold $c_t$ constant, so any outcome change is mechanical---a null-behavior baseline, not yet a test of H1--H3.
+
+\textbf{Adaptive extension (implemented).} The companion Colab notebook adds a strategy where rounds 4--6 respond to the prior round's peer average, swept across sensitivities (0--1.0); at maximum sensitivity contribution rises 0$\to$6 tokens, demonstrating only that the mechanism executes as designed. The notebook also sweeps the boundary-versus-typical comparison across 500 random schedules: boundary strictly dominates typical in 100\% of trials.
+
 \section{Answer to Q3: behavior and competing explanations}
-Identify a behavioral mechanism and a competing explanation. Describe evidence that would discriminate between them. Explain how this changes the economic model or computational design. State the limits of what the planned evidence can identify. Synthetic or simulated results do not establish human or real AI behavior. Include a feasible next test and what finding would change your mind.
+\textbf{Behavioral mechanism.} Following Andreoni and Petrie~\cite{andreoni2004}, the leading account is \emph{image-concern}: removing confidentiality raises giving because contributors care how their choice looks to observers.
 
+\textbf{Competing explanation.} \emph{Conditional cooperation}~\cite{fischbacher2001}: contributors match what they observe others contributing, regardless of whether their own choice is watched.
+
+\textbf{Why the current design cannot discriminate.} Peers are fixed and simulated; the player's own contribution is never shown to anyone. Any high-observability rise is therefore consistent with conditional cooperation by construction and cannot evidence image-concern, since being watched never occurs.
+
+\textbf{Discriminating evidence.} A $2\times2$ design crossing \emph{peer visibility} with \emph{player visibility} (does the player believe their own choice is watched?) would separate the mechanisms: a rise only when watched supports image-concern; a rise whenever peer behavior is visible supports conditional cooperation.
+
+\textbf{Limits and next test.} A full run would only establish the mechanism in a toy game against simulated, no-stakes peers---real sovereign actors may have stronger incentives to fake being watched. Testing with real human participants as peers would give ``player visibility'' an actual audience; equal contribution across all four cells regardless of true visibility would rule out image-concern, pointing policy toward peer-behavior visibility rather than one's own record.
 
 \section{Advanced development and future directions}
-Build on a named Nobel laureate's defining work and cite the award record. Identify an enduring human question---such as cooperation, fairness, trust or collective choice---and explain what the foundation establishes. Add a relevant Turing Award foundation where it clarifies the computational lineage.
-
-Explain what is distinctive about today's environment and technology, what current research leaves unresolved, and how your proposal advances that boundary. State the economic, computational and behavioral contributions and the new insight their integration makes possible.
+This proposal builds on two Nobel-recognized foundations: Ostrom's finding that groups sustain cooperation through mutual monitoring without central enforcement~\cite{ostrom1990,nobelostrom2009}, and Nordhaus's integration of climate change into economic analysis~\cite{nordhaus1992,nobelnordhaus2018}. Together they frame this proposal's question: how self-interested actors sustain collective action on a shared resource without a central enforcer, when the actors are sovereign states. What is new today is cheap, source-grounded AI capable of cross-checking disclosure at scale, making peer observability a feasible policy lever for the first time. Sections~2--4 advance this: disclosure is priced into risk, visibility alone can move contribution, and genuine transparency must be distinguished from performance---together showing observability's policy value depends on which behavioral mechanism drives it.
 
 \begin{table}[h]\caption{From laureate foundations to a new interdisciplinary contribution.}
 \begin{tabularx}{\columnwidth}{@{}p{1.6cm}Y@{}}\toprule
-\textbf{Horizon}&\textbf{Milestone and evidence}\\\midrule
-Foundation&[Laureate, defining work, enduring question and retained insight.]\\
-PS1&[Current-era setting, working baseline and meaningful check.]\\
-Next study&[New interdisciplinary explanation or design; a discriminating test.]\\
-Longer term&[Broader validation, benefits and reusable knowledge or tools.]\\
-2056&[Integrated contribution and evidence connecting it to the ambition below.]\\\bottomrule
+\textbf{Horizon}&\textbf{Milestone}\\\midrule
+Foundation&Ostrom~\cite{ostrom1990}, Nordhaus~\cite{nordhaus1992}: cooperation, climate as unenforced shared resources.\\
+PS1&Observability game; verified against hand calculations (Appendix~A).\\
+Next study&Human $2\times2$ design separating image-concern from conditional cooperation.\\
+2056&Deployed AI auditing tool adopted by a finance ministry as evidence of genuine transparency.\\\bottomrule
 \end{tabularx}\end{table}
 
-\noindent\textbf{Expected 2056 Nobel Prize and Turing Award contribution statement.}
-By 2056, I aspire to be recognized for [theory, method or design] addressing [enduring human question] in [the current era's distinctive environment]. Building on [laureates and cited foundations], I will integrate [economics], [computer science] and [behavioral science] to advance [specific boundary]. Progress will be demonstrated by [milestones and evidence], with intellectual merits in [knowledge] and practical impacts for [people and institutions].
-
-\subsection*{Open Science Statement}
-\textbf{GitHub:} \GitHubLink\\
-\textbf{Google Colab:} \ColabLink\par
-[Identify available code, data or synthetic inputs, notebook, dependencies, outputs, release/commit and actual reuse terms. Give the shortest reproducible run instruction.]
-
-\subsection*{Statement of Contribution to the UN's SDGs}
-\textbf{Hugging Face:} \DemoLink\\
-Through an open-access [tool], this project aims to support \textbf{SDG 4---Quality Education}~\cite{sdg4} by helping [audience] learn [concept] through [interaction]. [State access needs, learning instructions and a feasible evaluation.] Distinguish the resource released from benefits that remain to be evaluated.
-
-\subsection*{Submission milestones}
-First draft: September 13, 2026, 11:00 P.M. Beijing time (UTC+8). Class review: September 14. Proposed: rebuttal September 16 and revised submission September 20, both at 11:00 P.M. Update Appendix~\ref{app:abstract} with each reflection and revision.
-
+\noindent\textbf{2056 statement, Open Science \& SDG Contribution.} By 2056, I aim to be recognized for a computational framework for auditable, observability-based climate-finance institutions, testing whether peer observability substitutes for central enforcement in sustaining genuine sovereign disclosure. \textbf{GitHub/Colab:} \GitHubLink, \ColabLink (commit \texttt{ea48874}). \textbf{Hugging Face:} \DemoLink, supporting \textbf{SDG 4---Quality Education}~\cite{sdg4}.
