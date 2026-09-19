@@ -1,15 +1,288 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Strategic Reasoning Lab · COMSCI/ECON 206</title><style>
-:root{--ink:#18324a;--blue:#315efb;--teal:#14877d;--line:#dbe3ec;--pale:#f5f7fb}*{box-sizing:border-box}body{margin:0;background:white;color:var(--ink);font:17px/1.5 system-ui,sans-serif}main{max-width:1180px;margin:auto;padding:34px 32px 44px}a{color:#174cb1}header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:26px}.eyebrow{font-size:13px;font-weight:750;letter-spacing:.09em;color:var(--teal)}h1{font-size:44px;line-height:1.1;letter-spacing:-.03em;margin:12px 0}h2{font-size:25px;line-height:1.25;margin:0 0 15px}h3{font-size:18px;margin:16px 0 6px}p{margin:8px 0 15px}.lede{max-width:850px;font-size:19px}.grid{display:grid;grid-template-columns:1.05fr 1fr;gap:34px}.panel{padding:24px;border:1px solid var(--line);border-radius:16px}.tag{display:inline-block;padding:4px 10px;background:#edf7f5;color:#08645b;border-radius:5px;font-size:13px;font-weight:650}.matrix{border-collapse:collapse;width:100%;margin:18px 0;font-size:18px}.matrix th,.matrix td{padding:14px 8px;border-bottom:1px solid var(--line);text-align:center}.matrix th{font-size:14px}.matrix td:first-child{font-size:14px;text-align:left;font-weight:650}.matrix .efficient{background:#edf7f5}.matrix .safe{background:var(--pale)}.small{font-size:14px;color:#42576b}.choices{display:flex;gap:10px;margin:16px 0}button{border:1px solid var(--blue);border-radius:8px;background:var(--blue);color:white;padding:12px 18px;font:inherit;font-weight:650;cursor:pointer}button.secondary{background:white;color:var(--blue)}button:focus-visible,input:focus-visible{outline:3px solid #df982b;outline-offset:3px}.result{min-height:102px;padding:16px;background:var(--pale);border-radius:9px}.controls label{display:flex;justify-content:space-between;margin-top:12px;font-weight:620;font-size:15px}.controls input{width:100%;accent-color:var(--blue);margin:11px 0 0}.metric{font-size:36px;font-weight:750;color:var(--blue);margin-top:12px}.bar{height:23px;background:var(--pale);border-radius:5px;overflow:hidden;margin:10px 0}.bar span{display:block;height:100%;background:var(--blue);transition:width .15s}.bench{padding:13px 0;border-top:1px solid var(--line);margin-top:16px}.questions{margin-top:26px;padding:21px 24px;background:var(--pale);border-radius:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:25px}.questions b{color:var(--teal)}details{margin-top:22px;border-top:1px solid var(--line);padding-top:16px}summary{cursor:pointer;font-weight:700}footer{font-size:13px;margin-top:22px;color:#42576b}.sr{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:780px){main{padding:24px 18px}h1{font-size:36px}.grid,.questions{grid-template-columns:1fr}.panel{padding:20px}.choices{flex-wrap:wrap}}
-</style></head><body><main>
-<header><div class="eyebrow">COMSCI / ECON 206 · WEEK 3 · PROF. LUYAO ZHANG</div><h1>Will you coordinate?</h1><p class="lede">A good outcome depends on what someone else chooses. Play a synthetic opponent, then explore how beliefs and bounded reasoning change its behavior.</p><span class="tag">PS1 sample · synthetic classroom model</span></header>
-<div class="grid"><section class="panel"><h2>1. Choose in a coordination game</h2><p>Coordinate together for 8 each. The Safe action protects you if the other player does not coordinate.</p><table class="matrix" aria-label="Game payoffs, your payoff first"><thead><tr><th>You / opponent</th><th>Coordinate</th><th>Safe</th></tr></thead><tbody><tr><td>Coordinate</td><td class="efficient">8, 8</td><td>0, 7</td></tr><tr><td>Safe</td><td>7, 0</td><td class="safe" id="safe-cell">5, 5</td></tr></tbody></table><p class="small">Each cell shows your payoff, then the opponent’s. Choices are simultaneous; the opponent is sampled from the model on the right.</p><div class="choices"><button id="choose-c">Choose Coordinate</button><button id="choose-s" class="secondary">Choose Safe</button></div><div id="play-result" class="result" aria-live="polite">Make a prediction before playing. Which action would you choose, and what do you believe the opponent will do?</div></section>
-<section class="panel"><h2>2. Change the model</h2><div class="controls"><label for="safe">Safe–Safe payoff <output id="safe-val">5.0</output></label><input id="safe" type="range" min="1" max="7" step=".5" value="5"><label for="tau">Mean reasoning level τ <output id="tau-val">1.5</output></label><input id="tau" type="range" min="0" max="5" step=".1" value="1.5"><label for="gamma">Response precision growth γ <output id="gamma-val">1.2</output></label><input id="gamma" type="range" min="1" max="2" step=".05" value="1.2"></div><div class="metric" id="probability">—</div><div class="small">model probability of Coordinate</div><div class="bar" role="img" aria-label="Predicted coordination probability" id="prob-bar"><span id="prob-fill"></span></div><p id="payoff" class="small"></p><div class="bench"><strong>Nash benchmarks</strong><p class="small" id="benchmark"></p><p class="small" id="residual"></p></div></section></div>
-<section class="questions"><div><b>Economics</b><p>How do incentives change the appeal of coordination?</p></div><div><b>Computer science</b><p>Can you reproduce and check the prediction in Colab?</p></div><div><b>Behavioral science</b><p>What evidence could distinguish shallow reasoning from noisy choice?</p></div></section>
-<details><summary>Model, evidence, and research connection</summary><p>This is a simplified truncated logit cognitive hierarchy. Level 0 mixes uniformly; level k responds to a normalized Poisson mixture of lower levels. Precision is γ<sup>k</sup>. We retain levels 0–16 and renormalize. The model is neither a Nash solver nor a quantal-response-equilibrium fixed point.</p><p id="tail" class="small"></p><p>Inspired by <a href="https://papers.nips.cc/paper_files/paper/2025/hash/54b13427fc2c9180f85c3d76cdcf076e-Abstract-Conference.html">Jia et al., NeurIPS 2025</a>, with the baseline matrix from Table 1(b), and <a href="https://doi.org/10.1162/0033553041502225">Camerer, Ho &amp; Chong (2004)</a>. This original teaching adaptation does not reproduce the paper’s LLM evaluation. No real LLM calls or human research data are used.</p><p>Your proposal should state a hypothesis, compare alternative explanations, and distinguish expected findings from synthetic diagnostics. Use notebook 06 in the companion repository to inspect every calculation.</p></details>
-<footer>Runs locally in your browser. Choices stay in this page and disappear on refresh. No account, API key, or data collection. Course prototype; hosting is prepared separately.</footer>
-</main><script src="model.js"></script><script>
-const $=id=>document.getElementById(id);let current;let state=206;
-function redraw(){let safe=+$('safe').value,tau=+$('tau').value,gamma=+$('gamma').value;current=coordinationModel(tau,gamma,safe);$('safe-val').textContent=safe.toFixed(1);$('tau-val').textContent=tau.toFixed(1);$('gamma-val').textContent=gamma.toFixed(2);$('safe-cell').textContent=`${safe}, ${safe}`;let percent=(100*current.p).toFixed(1);$('probability').textContent=percent+'%';$('prob-fill').style.width=percent+'%';$('prob-bar').setAttribute('aria-label',`Predicted probability of Coordinate ${percent} percent`);$('payoff').textContent=`Expected payoff against this model: Coordinate ${current.uC.toFixed(2)}; Safe ${current.uS.toFixed(2)}.`;$('benchmark').textContent=`Both Coordinate and both Safe are pure equilibria. In the interior mixed equilibrium, each coordinates with probability ${(100*current.mixed).toFixed(1)}%.`;$('residual').textContent=`If both use the model distribution, the largest unilateral gain is ${current.regret.toFixed(3)} payoff units. A nonzero gain is allowed by this bounded-reasoning model.`;$('tail').textContent=`Omitted Poisson probability before normalization: ${current.tail.toExponential(2)}. This numerical approximation is distinct from behavioral validity.`;}
-function play(choice){state=(1664525*state+1013904223)>>>0;let opponent=(state/4294967296)<current.p?'Coordinate':'Safe';let safe=+$('safe').value;let payoff=choice==='Coordinate'?(opponent==='Coordinate'?8:0):(opponent==='Coordinate'?7:safe);$('play-result').textContent=`You chose ${choice}. The synthetic opponent chose ${opponent}. Your payoff: ${payoff}. One round does not establish a behavioral pattern; compare predictions across model settings.`;}
-for(let id of ['safe','tau','gamma'])$(id).addEventListener('input',redraw);$('choose-c').addEventListener('click',()=>play('Coordinate'));$('choose-s').addEventListener('click',()=>play('Safe'));redraw();
-</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observability &amp; the Public Goods Game</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #f4f6f8;
+    --text: #16181d;
+    --muted: #55606b;
+    --accent: #0f4c81;
+    --accent-dark: #0a3459;
+    --low: #6b7280;
+    --high: #b45309;
+    --border: #d7dde3;
+    --error: #b3261e;
+    --success: #0f7a3d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 62ch;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+    line-height: 1.5;
+  }
+  h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+  h2 { font-size: 1.05rem; margin-top: 1.6rem; }
+  .subtitle { color: var(--muted); margin-top: 0; font-size: 0.95rem; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    margin: 1rem 0;
+  }
+  .phase-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .phase-low { background: var(--low); }
+  .phase-high { background: var(--high); }
+  label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
+  input[type="number"] {
+    font-size: 1rem;
+    padding: 0.4rem 0.6rem;
+    width: 6rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  input[type="number"]:focus, button:focus {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.55rem 1.1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    margin-top: 0.6rem;
+  }
+  button:hover { background: var(--accent-dark); }
+  button.secondary {
+    background: #fff;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 0.35rem 0.5rem;
+    text-align: right;
+  }
+  th:first-child, td:first-child { text-align: left; }
+  .error {
+    color: var(--error);
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+  .success { color: var(--success); font-weight: 600; }
+  .peer-list { margin: 0.4rem 0; padding-left: 1.1rem; }
+  pre#log {
+    background: #0f1216;
+    color: #d7e2ea;
+    padding: 0.8rem;
+    border-radius: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+  }
+  .rule-note { font-size: 0.85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<h1>Observability &amp; the Public Goods Game</h1>
+<p class="subtitle">Does seeing what your peers contributed change how much you contribute?</p>
+
+<div class="panel">
+  <p><strong>The rules (same payoff structure as Games and Behavior #79, Week 1):</strong></p>
+  <ul>
+    <li>Each round you have <strong>10 tokens</strong>. Split them between your <strong>Personal Fund</strong> and the <strong>Group Fund</strong>.</li>
+    <li>Every token you keep in your Personal Fund pays <strong>you</strong> $4.</li>
+    <li>Every token anyone (you or your 4 peers) puts in the Group Fund pays <strong>each of the 5 players</strong> $2.</li>
+    <li>There are <strong>6 rounds</strong>. Rounds 1&ndash;3 are <span class="phase-badge phase-low">Low Observability</span>: you cannot see your peers' individual contributions. Rounds 4&ndash;6 are <span class="phase-badge phase-high">High Observability</span>: before you decide, you will see exactly what each of your 4 peers contributed last round.</li>
+  </ul>
+  <p class="rule-note">Your 4 peers follow a fixed, pre-set schedule (not affected by your choices) so results are reproducible.</p>
+</div>
+  <div class="panel"> <p><strong>Why this matters for SDG 4 (Quality Education):</strong></p> <p>This game is designed to teach students of economics, computer science, or behavioral science how observability changes cooperation in a public-goods dilemma — a mechanism usually taught only through abstract equations. By playing through Low- and High-Observability rounds yourself, you build direct intuition for whether seeing what your peers contributed changes your own choices, and whether that shift reflects genuine cooperation or just visible compliance. An observable indicator of learning: compare your own contribution in Rounds 1–3 (Low) against Rounds 4–6 (High), and consider why it did or didn't change.</p> </div>
+
+<div id="game-area"></div>
+
+<h2>Session log</h2>
+<pre id="log" aria-live="polite">No rounds played yet.</pre>
+<button class="secondary" id="reset-btn" type="button">Reset session</button>
+
+<script>
+(function () {
+  "use strict";
+  // Fixed, reproducible peer contribution schedule (4 peers x 6 rounds)
+    var PEER_SCHEDULE = [
+    [2, 3, 2, 3],   // Round 1 (Low)  -> sum = 10
+    [2, 3, 3, 2],   // Round 2 (Low)  -> sum = 10
+    [3, 2, 3, 2],   // Round 3 (Low)  -> sum = 10
+    [1, 4, 2, 3],   // Round 4 (High) -> sum = 10
+    [4, 1, 3, 2],   // Round 5 (High) -> sum = 10
+    [2, 4, 1, 3]    // Round 6 (High) -> sum = 10
+  ];
+  var TOTAL_ROUNDS = 6;
+  var LOW_PHASE_ROUNDS = [0, 1, 2];   // zero-indexed rounds 1-3
+  var HIGH_PHASE_ROUNDS = [3, 4, 5];  // zero-indexed rounds 4-6
+  var state = {
+    round: 0,            // 0-indexed, next round to play
+    history: [],         // {round, contribution, peers, poolTotal, personalPay, groupPay, totalPay}
+    finished: false
+  };
+  var gameArea = document.getElementById("game-area");
+  var logEl = document.getElementById("log");
+  function phaseOf(roundIndex) {
+    return HIGH_PHASE_ROUNDS.indexOf(roundIndex) !== -1 ? "high" : "low";
+  }
+  function render() {
+    if (state.finished) {
+      renderSummary();
+      return;
+    }
+    var roundIndex = state.round;
+    var phase = phaseOf(roundIndex);
+    var phaseLabel = phase === "high" ? "High Observability" : "Low Observability";
+    var phaseClass = phase === "high" ? "phase-high" : "phase-low";
+    var html = "";
+    html += '<div class="panel">';
+    html += '<p><span class="phase-badge ' + phaseClass + '">' + phaseLabel + '</span> &mdash; Round ' + (roundIndex + 1) + ' of ' + TOTAL_ROUNDS + '</p>';
+    if (phase === "high" && roundIndex > 0) {
+      var prevPeers = PEER_SCHEDULE[roundIndex - 1];
+      html += '<p><strong>Your peers\' contributions last round:</strong></p>';
+      html += '<ul class="peer-list">';
+      for (var i = 0; i < prevPeers.length; i++) {
+        html += '<li>Peer ' + (i + 1) + ': ' + prevPeers[i] + ' tokens</li>';
+      }
+      html += '</ul>';
+    } else if (phase === "low") {
+      html += '<p class="rule-note">Individual peer contributions are hidden this round.</p>';
+    }
+    html += '<label for="contrib-input">Tokens to put in the Group Fund (0&ndash;10):</label>';
+    html += '<input type="number" id="contrib-input" min="0" max="10" step="1" aria-describedby="input-error">';
+    html += '<div><button type="button" id="submit-btn">Submit round</button></div>';
+    html += '<div class="error" id="input-error" role="alert"></div>';
+    html += '</div>';
+    gameArea.innerHTML = html;
+    document.getElementById("submit-btn").addEventListener("click", handleSubmit);
+    document.getElementById("contrib-input").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") handleSubmit();
+    });
+  }
+  function handleSubmit() {
+    var input = document.getElementById("contrib-input");
+    var errorEl = document.getElementById("input-error");
+    var raw = input.value.trim();
+    // Intentionally invalid input handling: reject, do not advance, do not crash.
+    if (raw === "") {
+      errorEl.textContent = "Enter a number of tokens before submitting.";
+      return;
+    }
+    var value = Number(raw);
+    if (!Number.isInteger(value) || isNaN(value)) {
+      errorEl.textContent = "Please enter a whole number (0 to 10). '" + raw + "' is not valid.";
+      return;
+    }
+    if (value < 0 || value > 10) {
+      errorEl.textContent = "Contribution must be between 0 and 10 tokens. You entered " + value + ".";
+      return;
+    }
+    errorEl.textContent = "";
+    var roundIndex = state.round;
+    var peers = PEER_SCHEDULE[roundIndex];
+    var peerSum = peers.reduce(function (a, b) { return a + b; }, 0);
+    var poolTotal = value + peerSum;
+    var personalPay = (10 - value) * 4;
+    var groupPay = 2 * poolTotal;
+    var totalPay = personalPay + groupPay;
+    state.history.push({
+      round: roundIndex + 1,
+      phase: phaseOf(roundIndex),
+      contribution: value,
+      peers: peers.slice(),
+      poolTotal: poolTotal,
+      personalPay: personalPay,
+      groupPay: groupPay,
+      totalPay: totalPay
+    });
+    state.round += 1;
+    if (state.round >= TOTAL_ROUNDS) {
+      state.finished = true;
+    }
+    updateLog();
+    render();
+  }
+  function average(arr) {
+    if (arr.length === 0) return 0;
+    return arr.reduce(function (a, b) { return a + b; }, 0) / arr.length;
+  }
+  function renderSummary() {
+    var lowRows = state.history.filter(function (h) { return h.phase === "low"; });
+    var highRows = state.history.filter(function (h) { return h.phase === "high"; });
+    var avgLow = average(lowRows.map(function (h) { return h.contribution; }));
+    var avgHigh = average(highRows.map(function (h) { return h.contribution; }));
+    var cumulative = state.history.reduce(function (a, h) { return a + h.totalPay; }, 0);
+    var html = '<div class="panel">';
+    html += "<h2 style='margin-top:0'>Session complete</h2>";
+    html += "<table><thead><tr><th>Round</th><th>Phase</th><th>Your contribution</th><th>Pool total</th><th>Your payoff</th></tr></thead><tbody>";
+    state.history.forEach(function (h) {
+      html += "<tr><td>" + h.round + "</td><td>" + (h.phase === "high" ? "High" : "Low") + "</td><td>" + h.contribution + "</td><td>" + h.poolTotal + "</td><td>$" + h.totalPay.toFixed(2) + "</td></tr>";
+    });
+    html += "</tbody></table>";
+    html += "<p><strong>Average contribution, Low Observability (rounds 1&ndash;3):</strong> " + avgLow.toFixed(2) + " tokens</p>";
+    html += "<p><strong>Average contribution, High Observability (rounds 4&ndash;6):</strong> " + avgHigh.toFixed(2) + " tokens</p>";
+    html += "<p><strong>Cumulative payoff across all 6 rounds:</strong> $" + cumulative.toFixed(2) + "</p>";
+    if (avgHigh > avgLow) {
+      html += '<p class="success">Your contribution rose when peer contributions became visible.</p>';
+    } else if (avgHigh < avgLow) {
+      html += '<p class="error">Your contribution fell when peer contributions became visible.</p>';
+    } else {
+      html += "<p>Your contribution did not change between phases.</p>";
+    }
+    html += "<p class='rule-note'>This single session is a demonstration of the mechanism, not a test of it. Whether visibility reliably raises contribution requires many players and many sessions.</p>";
+    html += "</div>";
+    gameArea.innerHTML = html;
+  }
+  function updateLog() {
+    var lines = state.history.map(function (h) {
+      return "R" + h.round + " [" + h.phase + "] you=" + h.contribution +
+        " peers=" + h.peers.join(",") +
+        " pool=" + h.poolTotal +
+        " personal=$" + h.personalPay.toFixed(2) +
+        " group=$" + h.groupPay.toFixed(2) +
+        " total=$" + h.totalPay.toFixed(2);
+    });
+    logEl.textContent = lines.length ? lines.join("\n") : "No rounds played yet.";
+  }
+  document.getElementById("reset-btn").addEventListener("click", function () {
+    state = { round: 0, history: [], finished: false };
+    updateLog();
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
